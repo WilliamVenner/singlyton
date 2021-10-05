@@ -1,0 +1,13 @@
+[package]
+name = "singlyton"
+version = "0.1.0"
+authors = ["William Venner <william@venner.io>"]
+edition = "2018"
+
+[features]
+default = ["stable"]
+stable = ["once_cell"]
+nightly = []
+
+[dependencies]
+once_cell = { version = "1", optional = true }
