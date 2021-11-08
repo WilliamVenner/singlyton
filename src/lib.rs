@@ -1,12 +1,14 @@
 #![doc = include_str!("../README.md")]
 
-use std::{cell::UnsafeCell, mem::MaybeUninit};
-
 #[cfg(test)]
 mod tests;
 
 mod cell;
 use cell::*;
+
+#[cfg(debug_assertions)]
+use std::cell::UnsafeCell;
+use std::mem::MaybeUninit;
 
 /// A **thread-unsafe** global singleton.
 ///
@@ -90,6 +92,8 @@ impl<T> SingletonUninit<T> {
 	pub const fn uninit() -> Self {
 		Self {
 			inner: SinglytonCell::new(MaybeUninit::uninit()),
+
+			#[cfg(debug_assertions)]
 			initialized: UnsafeCell::new(false)
 		}
 	}
@@ -97,6 +101,8 @@ impl<T> SingletonUninit<T> {
 	pub const fn new(val: T) -> Self {
 		Self {
 			inner: SinglytonCell::new(MaybeUninit::new(val)),
+
+			#[cfg(debug_assertions)]
 			initialized: UnsafeCell::new(true)
 		}
 	}
@@ -157,7 +163,12 @@ impl<T> SingletonUninit<T> {
 	pub fn replace(&'static self, val: T) {
 		self.uninit_check();
 		unsafe {
+			#[cfg(debug_assertions)]
 			let mut maybe_uninit = self.inner.get_mut();
+
+			#[cfg(not(debug_assertions))]
+			let maybe_uninit = self.inner.get_mut();
+
 			core::ptr::drop_in_place(maybe_uninit.as_mut_ptr());
 			maybe_uninit.write(val);
 		}
@@ -185,8 +196,6 @@ impl<T> SingletonUninit<T> {
 	///
 	/// In debug builds, this will panic if the memory is **already initialized**, the singleton is accessed from a different thread, or an existing mutable or immutable reference is currently held.
 	pub fn init(&'static self, val: T) {
-		unsafe {
-			self.inner.get_mut().write(val);
-		}
+		self.inner.get_mut().write(val);
 	}
 }

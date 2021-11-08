@@ -87,11 +87,11 @@ mod cell {
 		}
 
 		pub(crate) fn get(&self) -> &T {
-			unsafe { &*self.0.as_ptr() }
+			unsafe { &*self.0.get() }
 		}
 
 		pub(crate) fn get_mut(&self) -> &mut T {
-			unsafe { &mut *self.0.as_ptr() }
+			unsafe { &mut *self.0.get() }
 		}
 	}
 }
