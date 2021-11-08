@@ -8,9 +8,9 @@ Debug assertions are present to ensure:
 * Thread safety (two threads cannot access the same singleton)
 * Sound usage of uninitialized memory
 
-# Example
+# Usage
 
-Cargo.toml
+First, add `singlyton` as a dependency of your project in your [`Cargo.toml`](https://doc.rust-lang.org/cargo/reference/manifest.html) file:
 
 ```toml
 [dependencies]
