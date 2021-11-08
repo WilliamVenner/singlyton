@@ -10,9 +10,18 @@ Debug assertions are present to ensure:
 
 # Example
 
+Cargo.toml
+
+```toml
+[dependencies]
+singlyton = "*"
+```
+
 ## `Singleton`
 
 ```rust
+use singlyton::Singleton;
+
 static SINGLETON: Singleton<&'static str> = Singleton::new("Hello");
 debug_assert_eq!(*SINGLETON.get(), "Hello");
 
@@ -26,6 +35,8 @@ debug_assert_eq!(*SINGLETON.get(), "Test 2");
 ## `SingletonUninit`
 
 ```rust
+use singlyton::SingletonUninit;
+
 static SINGLETON: SingletonUninit<String> = SingletonUninit::uninit();
 
 SINGLETON.init("Hello".to_string());
