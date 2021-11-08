@@ -8,6 +8,14 @@ Debug assertions are present to ensure:
 * Thread safety (two threads cannot access the same singleton)
 * Sound usage of uninitialized memory
 
+# Why?
+
+Single-threaded global state is a bit of a boogeyman in Rust:
+
+* [`static mut`](https://doc.rust-lang.org/reference/items/static-items.html#mutable-statics) is heavily discouraged due to its easy ability to cause UB through [aliasing](https://doc.rust-lang.org/nomicon/aliasing.html).
+* [Thread locals](https://doc.rust-lang.org/std/thread/struct.LocalKey.html) can be slow for performance critical contexts, are nonsense to use in a single-threaded environment, and may not be available on all platforms
+* Working around Rust's thread-safety mechanisms in single-threaded contexts can be ugly, annoying and unnecessary
+
 # Usage
 
 First, add `singlyton` as a dependency of your project in your [`Cargo.toml`](https://doc.rust-lang.org/cargo/reference/manifest.html) file:
