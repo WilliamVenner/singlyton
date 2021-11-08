@@ -25,3 +25,29 @@ fn test_singleton_uninit() {
 	*SINGLETON.get_mut() = "Test 2".to_string();
 	debug_assert_eq!(SINGLETON.get().as_str(), "Test 2");
 }
+
+#[test]
+#[should_panic]
+fn test_singleton_uninit_panic() {
+	static SINGLETON: SingletonUninit<String> = SingletonUninit::uninit();
+	SINGLETON.get();
+}
+
+#[test]
+#[should_panic]
+fn test_refcell() {
+	static SINGLETON: Singleton<&'static str> = Singleton::new("Hello");
+	let _my_ref = SINGLETON.get();
+	let _my_mut_ref = SINGLETON.get_mut();
+}
+
+#[test]
+#[should_panic]
+fn test_thread_safety() {
+	static SINGLETON: Singleton<&'static str> = Singleton::new("Hello");
+	SINGLETON.get();
+
+	std::thread::spawn(|| {
+		SINGLETON.get();
+	}).join().unwrap();
+}

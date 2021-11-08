@@ -1,5 +1,0 @@
-{
-	"rust-analyzer.cargo.allFeatures": false,
-	"rust-analyzer.cargo.features": ["nightly"],
-	"rust-analyzer.cargo.noDefaultFeatures": true
-}

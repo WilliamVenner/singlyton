@@ -1,13 +1,7 @@
 [package]
 name = "singlyton"
-version = "0.1.0"
+version = "1.0.0"
+edition = "2021"
+description = "Safe, single-threaded global state in Rust."
 authors = ["William Venner <william@venner.io>"]
-edition = "2018"
-
-[features]
-default = ["stable"]
-stable = ["once_cell"]
-nightly = []
-
-[dependencies]
-once_cell = { version = "1", optional = true }
+keywords = ["single-threaded", "global-state", "static", "static-mut"]
