@@ -1,3 +1,4 @@
+#![cfg_attr(not(feature = "std"), no_std)]
 #![doc = include_str!("../README.md")]
 
 #[cfg(test)]
@@ -7,8 +8,8 @@ mod cell;
 use cell::*;
 
 #[cfg(debug_assertions)]
-use std::cell::UnsafeCell;
-use std::mem::MaybeUninit;
+use core::cell::UnsafeCell;
+use core::mem::MaybeUninit;
 
 /// A **thread-unsafe** global singleton.
 ///

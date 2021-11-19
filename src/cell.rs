@@ -1,24 +1,30 @@
 #[cfg(any(debug_assertions, test))]
 mod cell {
-	use std::{cell::{Ref, RefMut, RefCell, UnsafeCell}, thread::{self, ThreadId}};
+	use core::cell::{UnsafeCell, RefCell, Ref, RefMut};
+
+	#[cfg(feature = "std")]
+	use std::thread::{self, ThreadId};
 
 	pub(crate) type SinglytonRef<T> = Ref<'static, T>;
 	pub(crate) type SinglytonRefMut<T> = RefMut<'static, T>;
 
-	pub(crate) fn map_ref<T: ?Sized, U: ?Sized, F>(reference: Ref<'static, T>, f: F) -> Ref<'static, U>
+	#[inline]
+	pub(crate) fn map_ref<'a, T: ?Sized, U: ?Sized, F>(reference: Ref<'a, T>, f: F) -> Ref<'a, U>
 	where
 		F: FnOnce(&T) -> &U
 	{
 		Ref::map(reference, f)
 	}
 
-	pub(crate) fn map_ref_mut<T: ?Sized, U: ?Sized, F>(reference: RefMut<'static, T>, f: F) -> RefMut<'static, U>
+	#[inline]
+	pub(crate) fn map_ref_mut<'a, T: ?Sized, U: ?Sized, F>(reference: RefMut<'a, T>, f: F) -> RefMut<'a, U>
 	where
 		F: FnOnce(&mut T) -> &mut U
 	{
 		RefMut::map(reference, f)
 	}
 
+	#[cfg(feature = "std")]
 	fn assert_single_threaded(thread_id: &UnsafeCell<Option<ThreadId>>) {
 		match unsafe { &mut *thread_id.get() } {
 			Some(thread_id) => {
@@ -46,12 +52,14 @@ mod cell {
 			}
 		}
 
-		pub(crate) fn get(&self) -> Ref<'_, T> {
+		pub(crate) fn get(&'static self) -> SinglytonRef<T> {
+			#[cfg(feature = "std")]
 			assert_single_threaded(&self.thread);
 			self.cell.borrow()
 		}
 
-		pub(crate) fn get_mut(&self) -> RefMut<'_, T> {
+		pub(crate) fn get_mut(&'static self) -> SinglytonRefMut<T> {
+			#[cfg(feature = "std")]
 			assert_single_threaded(&self.thread);
 			self.cell.borrow_mut()
 		}
@@ -60,19 +68,21 @@ mod cell {
 
 #[cfg(not(any(debug_assertions, test)))]
 mod cell {
-	use std::cell::UnsafeCell;
+	use core::cell::UnsafeCell;
 
 	pub type SinglytonRef<T> = &'static T;
 	pub type SinglytonRefMut<T> = &'static mut T;
 
-	pub(crate) fn map_ref<T: ?Sized, U: ?Sized, F>(reference: &'static T, f: F) -> &'static U
+	#[inline]
+	pub(crate) fn map_ref<'a, T: ?Sized, U: ?Sized, F>(reference: &'a T, f: F) -> &'a U
 	where
 		F: FnOnce(&T) -> &U
 	{
 		f(reference)
 	}
 
-	pub(crate) fn map_ref_mut<T: ?Sized, U: ?Sized, F>(reference: &'static mut T, f: F) -> &'static mut U
+	#[inline]
+	pub(crate) fn map_ref_mut<'a, T: ?Sized, U: ?Sized, F>(reference: &'a mut T, f: F) -> &'a mut U
 	where
 		F: FnOnce(&mut T) -> &mut U
 	{

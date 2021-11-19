@@ -43,6 +43,7 @@ fn test_refcell() {
 
 #[test]
 #[should_panic]
+#[cfg(feature = "std")]
 fn test_thread_safety() {
 	static SINGLETON: Singleton<&'static str> = Singleton::new("Hello");
 	SINGLETON.get();

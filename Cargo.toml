@@ -5,3 +5,7 @@ edition = "2021"
 description = "Safe, single-threaded global state in Rust."
 authors = ["William Venner <william@venner.io>"]
 keywords = ["single-threaded", "global-state", "static", "static-mut"]
+
+[features]
+default = ["std"]
+std = []
