@@ -1,6 +1,6 @@
 [package]
 name = "singlyton"
-version = "1.2.1"
+version = "2.0.0"
 edition = "2021"
 description = "Safe, single-threaded global state in Rust."
 authors = ["William Venner <william@venner.io>"]
@@ -8,6 +8,5 @@ keywords = ["single-threaded", "global-state", "static", "static-mut"]
 license = "MIT"
 repository = "https://github.com/WilliamVenner/singlyton"
 
-[features]
-default = ["std"]
-std = []
+[dependencies]
+atomic_refcell = "0.1.7"

@@ -1,65 +1,39 @@
 #[cfg(any(debug_assertions, test))]
 mod cell {
-	use core::cell::{UnsafeCell, RefCell, Ref, RefMut};
+	use atomic_refcell::{AtomicRefCell, AtomicRef, AtomicRefMut};
 
-	#[cfg(feature = "std")]
-	use std::thread::{self, ThreadId};
-
-	pub type SinglytonRef<T> = Ref<'static, T>;
-	pub type SinglytonRefMut<T> = RefMut<'static, T>;
+	pub type SinglytonRef<T> = AtomicRef<'static, T>;
+	pub type SinglytonRefMut<T> = AtomicRefMut<'static, T>;
 
 	#[inline]
-	pub fn map_ref<'a, T: ?Sized, U: ?Sized, F>(reference: Ref<'a, T>, f: F) -> Ref<'a, U>
+	pub fn map_ref<'a, T: ?Sized, U: ?Sized, F>(reference: AtomicRef<'a, T>, f: F) -> AtomicRef<'a, U>
 	where
 		F: FnOnce(&T) -> &U
 	{
-		Ref::map(reference, f)
+		AtomicRef::map(reference, f)
 	}
 
 	#[inline]
-	pub fn map_ref_mut<'a, T: ?Sized, U: ?Sized, F>(reference: RefMut<'a, T>, f: F) -> RefMut<'a, U>
+	pub fn map_ref_mut<'a, T: ?Sized, U: ?Sized, F>(reference: AtomicRefMut<'a, T>, f: F) -> AtomicRefMut<'a, U>
 	where
 		F: FnOnce(&mut T) -> &mut U
 	{
-		RefMut::map(reference, f)
+		AtomicRefMut::map(reference, f)
 	}
 
-	#[cfg(feature = "std")]
-	fn assert_single_threaded(thread_id: &UnsafeCell<Option<ThreadId>>) {
-		match unsafe { &mut *thread_id.get() } {
-			Some(thread_id) => {
-				let this_thread_id = thread::current().id();
-				if *thread_id != this_thread_id {
-					panic!(concat!(stringify!($singleton), " was constructed in thread {:?}, but accessed in thread {:?}"), thread_id, this_thread_id);
-				}
-			},
-			thread_id @ None => {
-				*thread_id = Some(thread::current().id());
-			}
-		}
-	}
-
-	pub(crate) struct SinglytonCell<T> {
-		cell: RefCell<T>,
-		thread: UnsafeCell<Option<ThreadId>>
-	}
+	pub(crate) struct SinglytonCell<T>(AtomicRefCell<T>);
 
 	impl<T> SinglytonCell<T> {
 		pub(crate) const fn new(val: T) -> SinglytonCell<T> {
-			SinglytonCell {
-				cell: RefCell::new(val),
-				thread: UnsafeCell::new(None)
-			}
+			SinglytonCell(AtomicRefCell::new(val))
 		}
 
 		pub(crate) fn get(&'static self) -> SinglytonRef<T> {
-			self.cell.borrow()
+			self.0.borrow()
 		}
 
 		pub(crate) fn get_mut(&'static self) -> SinglytonRefMut<T> {
-			#[cfg(feature = "std")]
-			assert_single_threaded(&self.thread);
-			self.cell.borrow_mut()
+			self.0.borrow_mut()
 		}
 	}
 }

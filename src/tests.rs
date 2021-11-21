@@ -43,12 +43,33 @@ fn test_refcell() {
 
 #[test]
 #[should_panic]
-#[cfg(feature = "std")]
 fn test_thread_safety() {
 	static SINGLETON: Singleton<&'static str> = Singleton::new("Hello");
-	SINGLETON.get();
+	let held_ref = SINGLETON.get();
 
-	std::thread::spawn(|| {
-		SINGLETON.get();
-	}).join().unwrap();
+	std::thread::spawn(|| SINGLETON.get_mut()).join().unwrap();
+
+	drop(held_ref);
+}
+
+#[test]
+#[should_panic]
+fn test_thread_safety_2() {
+	static SINGLETON: Singleton<&'static str> = Singleton::new("Hello");
+	let held_ref = SINGLETON.get_mut();
+
+	std::thread::spawn(|| SINGLETON.get()).join().unwrap();
+
+	drop(held_ref);
+}
+
+#[test]
+#[should_panic]
+fn test_thread_safety_3() {
+	static SINGLETON: Singleton<&'static str> = Singleton::new("Hello");
+	let held_ref = SINGLETON.get_mut();
+
+	std::thread::spawn(|| SINGLETON.get_mut()).join().unwrap();
+
+	drop(held_ref);
 }
