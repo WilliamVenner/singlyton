@@ -28,6 +28,7 @@ fn test_singleton_uninit() {
 
 #[test]
 #[should_panic]
+#[cfg(debug_assertions)]
 fn test_singleton_uninit_panic() {
 	static SINGLETON: SingletonUninit<String> = SingletonUninit::uninit();
 	SINGLETON.get();
@@ -35,6 +36,7 @@ fn test_singleton_uninit_panic() {
 
 #[test]
 #[should_panic]
+#[cfg(debug_assertions)]
 fn test_refcell() {
 	static SINGLETON: Singleton<&'static str> = Singleton::new("Hello");
 	let _my_ref = SINGLETON.get();
@@ -43,6 +45,7 @@ fn test_refcell() {
 
 #[test]
 #[should_panic]
+#[cfg(debug_assertions)]
 fn test_thread_safety() {
 	static SINGLETON: Singleton<&'static str> = Singleton::new("Hello");
 	let held_ref = SINGLETON.get();
@@ -54,6 +57,7 @@ fn test_thread_safety() {
 
 #[test]
 #[should_panic]
+#[cfg(debug_assertions)]
 fn test_thread_safety_2() {
 	static SINGLETON: Singleton<&'static str> = Singleton::new("Hello");
 	let held_ref = SINGLETON.get_mut();
@@ -65,6 +69,7 @@ fn test_thread_safety_2() {
 
 #[test]
 #[should_panic]
+#[cfg(debug_assertions)]
 fn test_thread_safety_3() {
 	static SINGLETON: Singleton<&'static str> = Singleton::new("Hello");
 	let held_ref = SINGLETON.get_mut();

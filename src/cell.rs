@@ -1,4 +1,4 @@
-#[cfg(any(debug_assertions, test))]
+#[cfg(debug_assertions)]
 mod cell {
 	use atomic_refcell::{AtomicRefCell, AtomicRef, AtomicRefMut};
 
@@ -38,7 +38,7 @@ mod cell {
 	}
 }
 
-#[cfg(not(any(debug_assertions, test)))]
+#[cfg(not(debug_assertions))]
 mod cell {
 	use core::cell::UnsafeCell;
 
