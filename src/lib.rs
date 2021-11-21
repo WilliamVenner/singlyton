@@ -6,6 +6,7 @@ mod tests;
 
 mod cell;
 use cell::*;
+pub use cell::{map_ref, map_ref_mut, SinglytonRef, SinglytonRefMut};
 
 #[cfg(debug_assertions)]
 use core::cell::UnsafeCell;

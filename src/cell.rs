@@ -5,11 +5,11 @@ mod cell {
 	#[cfg(feature = "std")]
 	use std::thread::{self, ThreadId};
 
-	pub(crate) type SinglytonRef<T> = Ref<'static, T>;
-	pub(crate) type SinglytonRefMut<T> = RefMut<'static, T>;
+	pub type SinglytonRef<T> = Ref<'static, T>;
+	pub type SinglytonRefMut<T> = RefMut<'static, T>;
 
 	#[inline]
-	pub(crate) fn map_ref<'a, T: ?Sized, U: ?Sized, F>(reference: Ref<'a, T>, f: F) -> Ref<'a, U>
+	pub fn map_ref<'a, T: ?Sized, U: ?Sized, F>(reference: Ref<'a, T>, f: F) -> Ref<'a, U>
 	where
 		F: FnOnce(&T) -> &U
 	{
@@ -17,7 +17,7 @@ mod cell {
 	}
 
 	#[inline]
-	pub(crate) fn map_ref_mut<'a, T: ?Sized, U: ?Sized, F>(reference: RefMut<'a, T>, f: F) -> RefMut<'a, U>
+	pub fn map_ref_mut<'a, T: ?Sized, U: ?Sized, F>(reference: RefMut<'a, T>, f: F) -> RefMut<'a, U>
 	where
 		F: FnOnce(&mut T) -> &mut U
 	{
@@ -74,7 +74,7 @@ mod cell {
 	pub type SinglytonRefMut<T> = &'static mut T;
 
 	#[inline]
-	pub(crate) fn map_ref<'a, T: ?Sized, U: ?Sized, F>(reference: &'a T, f: F) -> &'a U
+	pub fn map_ref<'a, T: ?Sized, U: ?Sized, F>(reference: &'a T, f: F) -> &'a U
 	where
 		F: FnOnce(&T) -> &U
 	{
@@ -82,7 +82,7 @@ mod cell {
 	}
 
 	#[inline]
-	pub(crate) fn map_ref_mut<'a, T: ?Sized, U: ?Sized, F>(reference: &'a mut T, f: F) -> &'a mut U
+	pub fn map_ref_mut<'a, T: ?Sized, U: ?Sized, F>(reference: &'a mut T, f: F) -> &'a mut U
 	where
 		F: FnOnce(&mut T) -> &mut U
 	{
@@ -106,4 +106,4 @@ mod cell {
 	}
 }
 
-pub(crate) use cell::*;
+pub use cell::*;
