@@ -53,8 +53,6 @@ mod cell {
 		}
 
 		pub(crate) fn get(&'static self) -> SinglytonRef<T> {
-			#[cfg(feature = "std")]
-			assert_single_threaded(&self.thread);
 			self.cell.borrow()
 		}
 

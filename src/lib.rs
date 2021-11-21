@@ -32,21 +32,21 @@ impl<T> Singleton<T> {
 
 	/// Acquires an **immutable reference** to the singleton.
 	///
-	/// In debug builds, this will panic if the singleton is accessed from a different thread or if a mutable reference is currently held.
+	/// In debug builds, this will panic if the singleton is mutably accessed from a different thread or if a mutable reference is currently held.
 	pub fn get(&'static self) -> SinglytonRef<T> {
 		self.0.get()
 	}
 
 	/// Acquires a **mutable reference** to the singleton.
 	///
-	/// In debug builds, this will panic if the singleton is accessed from a different thread or an existing mutable or immutable reference is currently held.
+	/// In debug builds, this will panic if the singleton is mutably accessed from a different thread or an existing mutable or immutable reference is currently held.
 	pub fn get_mut(&'static self) -> SinglytonRefMut<T> {
 		self.0.get_mut()
 	}
 
 	/// Acquires an **immutable pointer** to the singleton.
 	///
-	/// In debug builds, this will panic if the singleton is accessed from a different thread or if a mutable reference is currently held.
+	/// In debug builds, this will panic if the singleton is mutably accessed from a different thread or if a mutable reference is currently held.
 	///
 	/// This is unsafe because the returned pointer bypasses any future borrow checking.
 	pub unsafe fn as_ptr(&'static self) -> *const T {
@@ -55,7 +55,7 @@ impl<T> Singleton<T> {
 
 	/// Acquires a **mutable pointer** to the singleton.
 	///
-	/// In debug builds, this will panic if the singleton is accessed from a different thread or an existing mutable or immutable reference is currently held.
+	/// In debug builds, this will panic if the singleton is mutably accessed from a different thread or an existing mutable or immutable reference is currently held.
 	///
 	/// This is unsafe because the returned pointer bypasses any future borrow checking.
 	pub unsafe fn as_mut_ptr(&'static self) -> *mut T {
@@ -64,7 +64,7 @@ impl<T> Singleton<T> {
 
 	/// Replaces the value in the singleton with anew.
 	///
-	/// In debug builds, this will panic if the singleton is accessed from a different thread or an existing mutable or immutable reference is currently held.
+	/// In debug builds, this will panic if the singleton is mutably accessed from a different thread or an existing mutable or immutable reference is currently held.
 	pub fn replace(&'static self, val: T) {
 		*self.0.get_mut() = val;
 	}
@@ -121,7 +121,7 @@ impl<T> SingletonUninit<T> {
 
 	/// Assumes the memory is **initialized** and acquires an **immutable reference** to the singleton.
 	///
-	/// In debug builds, this will panic if the memory is not initialized, the singleton is accessed from a different thread, or a mutable reference is currently held.
+	/// In debug builds, this will panic if the memory is not initialized, the singleton is mutably accessed from a different thread, or a mutable reference is currently held.
 	pub fn get(&'static self) -> SinglytonRef<T> {
 		self.uninit_check();
 		map_ref(self.inner.get(), |maybe_uninit| unsafe {
@@ -131,7 +131,7 @@ impl<T> SingletonUninit<T> {
 
 	/// Acquires a **mutable reference** to the singleton.
 	///
-	/// In debug builds, this will panic if the memory is not initialized, the singleton is accessed from a different thread, or an existing mutable or immutable reference is currently held.
+	/// In debug builds, this will panic if the memory is not initialized, the singleton is mutably accessed from a different thread, or an existing mutable or immutable reference is currently held.
 	pub fn get_mut(&'static self) -> SinglytonRefMut<T> {
 		self.uninit_check();
 		map_ref_mut(self.inner.get_mut(), |maybe_uninit| unsafe {
@@ -141,7 +141,7 @@ impl<T> SingletonUninit<T> {
 
 	/// Acquires an **immutable pointer** to the singleton.
 	///
-	/// In debug builds, this will panic if the memory is not initialized, the singleton is accessed from a different thread, or a mutable reference is currently held.
+	/// In debug builds, this will panic if the memory is not initialized, the singleton is mutably accessed from a different thread, or a mutable reference is currently held.
 	///
 	/// This is unsafe because the returned pointer bypasses any future borrow checking.
 	pub fn as_ptr(&'static self) -> *const T {
@@ -151,7 +151,7 @@ impl<T> SingletonUninit<T> {
 
 	/// Acquires a **mutable pointer** to the singleton.
 	///
-	/// In debug builds, this will panic if the memory is not initialized, the singleton is accessed from a different thread, or an existing mutable or immutable reference is currently held.
+	/// In debug builds, this will panic if the memory is not initialized, the singleton is mutably accessed from a different thread, or an existing mutable or immutable reference is currently held.
 	///
 	/// This is unsafe because the returned pointer bypasses any future borrow checking.
 	pub fn as_mut_ptr(&'static self) -> *mut T {
@@ -161,7 +161,7 @@ impl<T> SingletonUninit<T> {
 
 	/// Replaces the value in the singleton with anew.
 	///
-	/// In debug builds, this will panic if the memory is not initialized, the singleton is accessed from a different thread, or an existing mutable or immutable reference is currently held.
+	/// In debug builds, this will panic if the memory is not initialized, the singleton is mutably accessed from a different thread, or an existing mutable or immutable reference is currently held.
 	pub fn replace(&'static self, val: T) {
 		self.uninit_check();
 		unsafe {
@@ -179,7 +179,7 @@ impl<T> SingletonUninit<T> {
 	#[cfg(debug_assertions)]
 	/// Initializes the memory in the singleton.
 	///
-	/// In debug builds, this will panic if the memory is **already initialized**, the singleton is accessed from a different thread, or an existing mutable or immutable reference is currently held.
+	/// In debug builds, this will panic if the memory is **already initialized**, the singleton is mutably accessed from a different thread, or an existing mutable or immutable reference is currently held.
 	pub fn init(&'static self, val: T) {
 		unsafe {
 			let ref mut initialized = *self.initialized.get();
@@ -196,7 +196,7 @@ impl<T> SingletonUninit<T> {
 	#[cfg(not(debug_assertions))]
 	/// Initializes the memory in the singleton.
 	///
-	/// In debug builds, this will panic if the memory is **already initialized**, the singleton is accessed from a different thread, or an existing mutable or immutable reference is currently held.
+	/// In debug builds, this will panic if the memory is **already initialized**, the singleton is mutably accessed from a different thread, or an existing mutable or immutable reference is currently held.
 	pub fn init(&'static self, val: T) {
 		self.inner.get_mut().write(val);
 	}
@@ -228,14 +228,14 @@ impl<T> SingletonOption<T> {
 
 	/// Acquires an **immutable reference** to the inner `Option<T>`.
 	///
-	/// In debug builds, this will panic if the singleton is accessed from a different thread or if a mutable reference is currently held.
+	/// In debug builds, this will panic if the singleton is mutably accessed from a different thread or if a mutable reference is currently held.
 	pub fn as_option(&'static self) -> SinglytonRef<Option<T>> {
 		self.0.get()
 	}
 
 	/// Acquires a **mutable reference** to the inner `Option<T>`.
 	///
-	/// In debug builds, this will panic if the singleton is accessed from a different thread or an existing mutable or immutable reference is currently held.
+	/// In debug builds, this will panic if the singleton is mutably accessed from a different thread or an existing mutable or immutable reference is currently held.
 	pub fn as_option_mut(&'static self) -> SinglytonRefMut<Option<T>> {
 		self.0.get_mut()
 	}
@@ -244,7 +244,7 @@ impl<T> SingletonOption<T> {
 	///
 	/// Panics if the singleton is `None`.
 	///
-	/// In debug builds, this will panic if the singleton is accessed from a different thread or if a mutable reference is currently held.
+	/// In debug builds, this will panic if the singleton is mutably accessed from a different thread or if a mutable reference is currently held.
 	pub fn get(&'static self) -> SinglytonRef<T> {
 		map_ref(self.0.get(), |opt| opt.as_ref().unwrap())
 	}
@@ -253,35 +253,35 @@ impl<T> SingletonOption<T> {
 	///
 	/// Panics if the singleton is `None`.
 	///
-	/// In debug builds, this will panic if the singleton is accessed from a different thread or an existing mutable or immutable reference is currently held.
+	/// In debug builds, this will panic if the singleton is mutably accessed from a different thread or an existing mutable or immutable reference is currently held.
 	pub fn get_mut(&'static self) -> SinglytonRefMut<T> {
 		map_ref_mut(self.0.get_mut(), |opt| opt.as_mut().unwrap())
 	}
 
 	/// Replaces the value in the singleton with anew.
 	///
-	/// In debug builds, this will panic if the singleton is accessed from a different thread or an existing mutable or immutable reference is currently held.
+	/// In debug builds, this will panic if the singleton is mutably accessed from a different thread or an existing mutable or immutable reference is currently held.
 	pub fn replace(&'static self, val: T) {
 		self.0.get_mut().replace(val);
 	}
 
 	/// Takes the value out of the singleton.
 	///
-	/// In debug builds, this will panic if the singleton is accessed from a different thread or an existing mutable or immutable reference is currently held.
+	/// In debug builds, this will panic if the singleton is mutably accessed from a different thread or an existing mutable or immutable reference is currently held.
 	pub fn take(&'static self) -> Option<T> {
 		self.0.get_mut().take()
 	}
 
 	/// Tests if the singleton is `Some(T)`.
 	///
-	/// In debug builds, this will panic if the singleton is accessed from a different thread or if a mutable reference is currently held.
+	/// In debug builds, this will panic if the singleton is mutably accessed from a different thread or if a mutable reference is currently held.
 	pub fn is_some(&'static self) -> bool {
 		self.0.get().is_some()
 	}
 
 	/// Tests if the singleton is `None`.
 	///
-	/// In debug builds, this will panic if the singleton is accessed from a different thread or if a mutable reference is currently held.
+	/// In debug builds, this will panic if the singleton is mutably accessed from a different thread or if a mutable reference is currently held.
 	pub fn is_none(&'static self) -> bool {
 		self.0.get().is_none()
 	}
