@@ -201,3 +201,88 @@ impl<T> SingletonUninit<T> {
 		self.inner.get_mut().write(val);
 	}
 }
+
+/// A **thread-unsafe** global singleton containg an `Option<T>`.
+///
+/// All operations (except `as_option` and `as_option_mut`) automatically unwrap and assume the `Option<T>` is `Some(T)` and will panic otherwise.
+///
+/// Using this across threads is undefined behaviour.
+///
+/// # Panics
+///
+/// In debug builds, usage of this abstraction is checked for safety at runtime.
+///
+/// * Using this struct across threads will panic.
+/// * Mixing mutabilty of borrows will panic (this is bypassed if you are using the pointer getters)
+pub struct SingletonOption<T>(SinglytonCell<Option<T>>);
+unsafe impl<T> Sync for SingletonOption<T> {}
+
+impl<T> SingletonOption<T> {
+	pub const fn new() -> Self {
+		Self(SinglytonCell::new(None))
+	}
+
+	pub const fn new_some(val: T) -> Self {
+		Self(SinglytonCell::new(Some(val)))
+	}
+
+	/// Acquires an **immutable reference** to the inner `Option<T>`.
+	///
+	/// In debug builds, this will panic if the singleton is accessed from a different thread or if a mutable reference is currently held.
+	pub fn as_option(&'static self) -> SinglytonRef<Option<T>> {
+		self.0.get()
+	}
+
+	/// Acquires a **mutable reference** to the inner `Option<T>`.
+	///
+	/// In debug builds, this will panic if the singleton is accessed from a different thread or an existing mutable or immutable reference is currently held.
+	pub fn as_option_mut(&'static self) -> SinglytonRefMut<Option<T>> {
+		self.0.get_mut()
+	}
+
+	/// Acquires an **immutable reference** to the singleton.
+	///
+	/// Panics if the singleton is `None`.
+	///
+	/// In debug builds, this will panic if the singleton is accessed from a different thread or if a mutable reference is currently held.
+	pub fn get(&'static self) -> SinglytonRef<T> {
+		map_ref(self.0.get(), |opt| opt.as_ref().unwrap())
+	}
+
+	/// Acquires a **mutable reference** to the singleton.
+	///
+	/// Panics if the singleton is `None`.
+	///
+	/// In debug builds, this will panic if the singleton is accessed from a different thread or an existing mutable or immutable reference is currently held.
+	pub fn get_mut(&'static self) -> SinglytonRefMut<T> {
+		map_ref_mut(self.0.get_mut(), |opt| opt.as_mut().unwrap())
+	}
+
+	/// Replaces the value in the singleton with anew.
+	///
+	/// In debug builds, this will panic if the singleton is accessed from a different thread or an existing mutable or immutable reference is currently held.
+	pub fn replace(&'static self, val: T) {
+		self.0.get_mut().replace(val);
+	}
+
+	/// Takes the value out of the singleton.
+	///
+	/// In debug builds, this will panic if the singleton is accessed from a different thread or an existing mutable or immutable reference is currently held.
+	pub fn take(&'static self) -> Option<T> {
+		self.0.get_mut().take()
+	}
+
+	/// Tests if the singleton is `Some(T)`.
+	///
+	/// In debug builds, this will panic if the singleton is accessed from a different thread or if a mutable reference is currently held.
+	pub fn is_some(&'static self) -> bool {
+		self.0.get().is_some()
+	}
+
+	/// Tests if the singleton is `None`.
+	///
+	/// In debug builds, this will panic if the singleton is accessed from a different thread or if a mutable reference is currently held.
+	pub fn is_none(&'static self) -> bool {
+		self.0.get().is_none()
+	}
+}
