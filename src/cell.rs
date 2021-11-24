@@ -35,6 +35,14 @@ mod cell {
 		pub(crate) fn get_mut(&'static self) -> SinglytonRefMut<T> {
 			self.0.borrow_mut()
 		}
+
+		pub(crate) unsafe fn get_unchecked(&'static self) -> &'static T {
+			&*self.0.as_ptr()
+		}
+
+		pub(crate) unsafe fn get_mut_unchecked(&'static self) -> &'static mut T {
+			&mut *self.0.as_ptr()
+		}
 	}
 }
 
@@ -74,6 +82,14 @@ mod cell {
 
 		pub(crate) fn get_mut(&self) -> &mut T {
 			unsafe { &mut *self.0.get() }
+		}
+
+		pub(crate) unsafe fn get_unchecked(&'static self) -> &'static T {
+			self.get()
+		}
+
+		pub(crate) unsafe fn get_mut_unchecked(&'static self) -> &'static mut T {
+			self.get_mut()
 		}
 	}
 }

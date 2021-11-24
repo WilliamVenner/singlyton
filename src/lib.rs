@@ -144,7 +144,7 @@ impl<T> SingletonUninit<T> {
 	/// In debug builds, this will panic if the memory is not initialized, the singleton is mutably accessed from a different thread, or a mutable reference is currently held.
 	///
 	/// This is unsafe because the returned pointer bypasses any future borrow checking.
-	pub fn as_ptr(&'static self) -> *const T {
+	pub unsafe fn as_ptr(&'static self) -> *const T {
 		self.uninit_check();
 		self.inner.get_mut().as_ptr()
 	}
@@ -154,7 +154,7 @@ impl<T> SingletonUninit<T> {
 	/// In debug builds, this will panic if the memory is not initialized, the singleton is mutably accessed from a different thread, or an existing mutable or immutable reference is currently held.
 	///
 	/// This is unsafe because the returned pointer bypasses any future borrow checking.
-	pub fn as_mut_ptr(&'static self) -> *mut T {
+	pub unsafe fn as_mut_ptr(&'static self) -> *mut T {
 		self.uninit_check();
 		self.inner.get_mut().as_mut_ptr()
 	}
@@ -238,6 +238,24 @@ impl<T> SingletonOption<T> {
 	/// In debug builds, this will panic if the singleton is mutably accessed from a different thread or an existing mutable or immutable reference is currently held.
 	pub fn as_option_mut(&'static self) -> SinglytonRefMut<Option<T>> {
 		self.0.get_mut()
+	}
+
+	/// Acquires an **immutable pointer** to the inner Option<T>.
+	///
+	/// In debug builds, this will panic if the singleton is mutably accessed from a different thread or if a mutable reference is currently held.
+	///
+	/// This is unsafe because the returned pointer bypasses any future borrow checking.
+	pub unsafe fn as_option_ptr(&'static self) -> *const Option<T> {
+		self.0.get_unchecked() as *const Option<T>
+	}
+
+	/// Acquires a **mutable pointer** to the inner Option<T>.
+	///
+	/// In debug builds, this will panic if the singleton is mutably accessed from a different thread or an existing mutable or immutable reference is currently held.
+	///
+	/// This is unsafe because the returned pointer bypasses any future borrow checking.
+	pub unsafe fn as_option_mut_ptr(&'static self) -> *mut Option<T> {
+		self.0.get_mut_unchecked() as *mut Option<T>
 	}
 
 	/// Acquires an **immutable reference** to the singleton.
