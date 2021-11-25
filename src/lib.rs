@@ -334,7 +334,7 @@ impl<T> SingletonOption<T> {
 
 /// A **thread-unsafe** global singleton containg an `Option<T>`.
 ///
-/// All operations (except `as_option` and `as_option_mut`) automatically unwrap **without checking if the Option<T> is Some(T)** and will lead to undefined behaviour otherwise.
+/// All operations (except `as_option` and `as_option_mut`) automatically unwrap **without checking if the Option<T> is Some(T) in release builds** and will lead to undefined behaviour otherwise.
 ///
 /// Using this across threads is undefined behaviour.
 ///
@@ -402,7 +402,14 @@ impl<T> SingletonOptionUnchecked<T> {
 	///
 	/// In debug builds, this will panic if the singleton is mutably accessed from a different thread or if a mutable reference is currently held.
 	pub unsafe fn get(&'static self) -> SinglytonRef<T> {
-		map_ref(self.0.get(), |opt| opt.as_ref().unwrap_unchecked())
+		map_ref(self.0.get(), |opt| {
+			#[cfg(debug_assertions)] {
+				opt.as_ref().unwrap()
+			}
+			#[cfg(not(debug_assertions))] {
+				opt.as_ref().unwrap_unchecked()
+			}
+		})
 	}
 
 	#[inline]
@@ -412,7 +419,14 @@ impl<T> SingletonOptionUnchecked<T> {
 	///
 	/// In debug builds, this will panic if the singleton is mutably accessed from a different thread or an existing mutable or immutable reference is currently held.
 	pub unsafe fn get_mut(&'static self) -> SinglytonRefMut<T> {
-		map_ref_mut(self.0.get_mut(), |opt| opt.as_mut().unwrap_unchecked())
+		map_ref_mut(self.0.get_mut(), |opt| {
+			#[cfg(debug_assertions)] {
+				opt.as_mut().unwrap()
+			}
+			#[cfg(not(debug_assertions))] {
+				opt.as_mut().unwrap_unchecked()
+			}
+		})
 	}
 
 	#[inline]
